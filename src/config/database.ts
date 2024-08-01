@@ -11,7 +11,5 @@ const sequelize = new Sequelize(environ.DB as string, environ.DB_USER as string,
   logging: false, // set to console.log to see the raw SQL queries
 });
 
-// Test the connection
-
 
 export default sequelize;

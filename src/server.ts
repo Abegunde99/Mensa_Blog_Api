@@ -12,8 +12,8 @@ async function testConnection() {
     }
 }
   
-  // Call the function to test the connection
-  testConnection();
+// Call the function to test the connection
+testConnection();
 
 const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => { 
