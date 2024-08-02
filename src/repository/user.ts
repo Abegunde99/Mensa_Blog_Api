@@ -1,4 +1,4 @@
-import User from '../models/User';
+import User from '../models/user';
 import ErrorResponse from '../utils/errorResponse';
 import { IUserData } from '../interface';
 import { Op } from 'sequelize';
