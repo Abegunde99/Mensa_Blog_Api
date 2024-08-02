@@ -1,10 +1,9 @@
 import User from '../models/User';
 import ErrorResponse from '../utils/errorResponse';
-import { ExtendedError, IUserData, IUser } from '../interface';
+import { IUserData } from '../interface';
 import { Op } from 'sequelize';
 import JwtUtility from '../utils/jwt';
 import { comparePassword, hashPassword } from '../utils';
-import { Console } from 'console';
 
 export default class UserRepository {
   async create(userData: Partial<User>): Promise<IUserData | undefined> {
@@ -43,7 +42,7 @@ export default class UserRepository {
             updatedAt: user.updatedAt,
             accessToken: JwtUtility.generateToken(user.id),
         };
-    }
+    };
 }
 
   async findAll(): Promise<User[]> {

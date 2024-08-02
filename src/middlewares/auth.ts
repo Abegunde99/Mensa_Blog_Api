@@ -6,7 +6,7 @@ import ErrorResponse  from "../utils/errorResponse";
 
 
 class AuthMiddleware {
-  async authorize(req: CustomRequest, res: Response, next: NextFunction) {
+  static async authorize(req: CustomRequest, res: Response, next: NextFunction) {
     const header: any = req.header("Authorization");
     if (!header) {
         return next(new ErrorResponse("No bearer token provided", 401));

@@ -56,12 +56,6 @@ export interface CustomRequest extends Request {
     user?: UserJWT; // Define the 'user' property
 }
 
-// export interface CustomError extends Error {
-//     code?: string;
-//     value?: string;
-//     statusCode?: number;
-// }
-
 export interface ExtendedError extends Error {
     statusCode?: number;
     errors?: any;
