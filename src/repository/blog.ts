@@ -54,7 +54,10 @@ export default class BlogRepository {
   }
 
   async findByAuthor(authorId: number): Promise<Blog[]> {
-    try{
+    try {
+      const user = await User.findByPk(authorId)
+      if (!user) throw new ErrorResponse("User not found", 404);
+      
       return await Blog.findAll({ where: { authorId } });
     }catch (error: any){
       throw new ErrorResponse(error.message, 500)

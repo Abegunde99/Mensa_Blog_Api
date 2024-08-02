@@ -23,6 +23,9 @@ export const loginUser = asyncHandler(async (req: Request, res: Response, next: 
   if (error) {
     return next(new ErrorResponse(error.details[0].message, 400))
   }
+  const { email, username } = req.body;
+  if (!email && !username) return next(new ErrorResponse('Please enter either email or username', 400));
+  if (email && username) return next(new ErrorResponse('You can\'t enter both email and username at the same time', 400));
   const user = await userRepository.login(req.body);
   res.status(201).json({success: true, message: "User logged in successfully", data: user});
 })

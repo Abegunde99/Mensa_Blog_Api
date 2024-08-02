@@ -12,7 +12,6 @@ export const createBlog = asyncHandler(async (req: CustomRequest, res: Response,
   if (error) {
     return next(new ErrorResponse(error.details[0].message, 400))
   }
-  console.log({req_user: req.user})
   if (!req.user) return next(new ErrorResponse('You are not authorized to access this route', 400));
   req.body.authorId = req.user._id;
   const blog = await blogRepository.create(req.body);
@@ -26,7 +25,8 @@ export const getAllBlogs = asyncHandler(async (req: Request, res: Response, next
 
 export const getBlogById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const blog = await blogRepository.findById(Number(req.params.id));
-  if(!blog) return next(new ErrorResponse('Blog not found', 404))
+  if (!blog) return next(new ErrorResponse('Blog not found', 404))
+  res.status(200).json({ success: true, data: blog });
 });
 
 export const updateBlog = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -49,5 +49,7 @@ export const deleteBlog = asyncHandler(async (req: CustomRequest, res: Response,
 
 export const getBlogsByAuthor = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const blogs = await blogRepository.findByAuthor(Number(req.params.authorId));
-  res.json(blogs);
+  console.log({blogs})
+  if (!blogs || blogs.length < 0) return next(new ErrorResponse('No Blogs found', 404))
+  res.status(200).json({ success: true, data: blogs });
 });

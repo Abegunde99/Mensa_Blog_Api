@@ -4,7 +4,7 @@ const createBlogValidator = (blogData: any) => {
   const schema = Joi.object({
     title: Joi.string().min(3).max(100).required(),
     content: Joi.string().min(10).required(),
-    authorId: Joi.number().integer().positive().required(),
+    authorId: Joi.number().integer().positive(),
   });
   return schema.validate(blogData);
 };

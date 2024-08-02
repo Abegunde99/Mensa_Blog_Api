@@ -4,11 +4,11 @@ import AuthMiddleware from '../middlewares/auth';
 
 const router = express.Router();
 
-router.post('/blog', AuthMiddleware.authorize, blogController.createBlog);
-router.get('/blogs', blogController.getAllBlogs);
-router.get('/blog/:id', blogController.getBlogById);
-router.put('/blog/:id', AuthMiddleware.authorize, blogController.updateBlog);
-router.delete('/blog/:id', AuthMiddleware.authorize, blogController.deleteBlog);
-router.get('/blog/author/:authorId', blogController.getBlogsByAuthor);
+router.post('/posts', AuthMiddleware.authorize, blogController.createBlog);
+router.get('/posts', blogController.getAllBlogs);
+router.get('/posts/:id', blogController.getBlogById);
+router.put('/posts/:id', AuthMiddleware.authorize, blogController.updateBlog);
+router.delete('/posts/:id', AuthMiddleware.authorize, blogController.deleteBlog);
+router.get('/posts/author/:authorId', blogController.getBlogsByAuthor);
 
 export default router;
