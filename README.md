@@ -1,10 +1,10 @@
 # Blogging Platform API
 
 ## Hosted URL
-https://blogging-platform-api.herokuapp.com/
+https://mensa-blog-api.onrender.com
 
 ## API Documentation
-https://blogging-platform-api.herokuapp.com/api-docs/
+https://documenter.getpostman.com/view/21616732/2sA3rwLtqs
 
 ## Overview
 

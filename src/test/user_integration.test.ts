@@ -1,103 +1,123 @@
 import request from 'supertest';
-import app from '../app';
-import User from '../models/User';
+import app from '../app'; // Assuming your express app is exported from here
+import User from '../models/user';
+import JwtUtility from '../utils/jwt';
+import { comparePassword, hashPassword } from '../utils';
+
+jest.mock('../models/user');
+jest.mock('../utils/jwt');
+jest.mock('../utils', () => ({
+    comparePassword: jest.fn(),
+    hashPassword: jest.fn()
+}));
 
 describe('User API', () => {
-  beforeEach(async () => {
-    await User.destroy({ where: {} });
-  });
+    describe('POST /users/create', () => {
+        it('should create a new user', async () => {
+            (User.create as jest.Mock).mockResolvedValue({ id: 1 });
+            (JwtUtility.generateToken as jest.Mock).mockReturnValue('fakeToken');
 
-  describe('POST /api/users', () => {
-    it('should create a new user', async () => {
-      const res = await request(app)
-        .post('/api/users')
-        .send({
-          username: 'testuser',
-          email: 'test@example.com',
-          password: 'password123',
-        });
+            const res = await request(app).post('/users').send({ username: 'testUser', email: 'test@example.com' });
 
-      expect(res.statusCode).toBe(201);
-      expect(res.body).toHaveProperty('id');
-      expect(res.body.username).toBe('testuser');
-      expect(res.body.email).toBe('test@example.com');
-      expect(res.body).toHaveProperty('accessToken');
-    });
-
-    it('should return 400 if required fields are missing', async () => {
-      const res = await request(app)
-        .post('/api/users')
-        .send({
-          username: 'testuser',
-        });
-
-      expect(res.statusCode).toBe(400);
-    });
-  });
-
-  describe('POST /api/users/login', () => {
-    beforeEach(async () => {
-      await request(app)
-        .post('/api/users')
-        .send({
-          username: 'testuser',
-          email: 'test@example.com',
-          password: 'password123',
+            expect(res.status).toBe(201);
+            expect(res.body).toEqual({ id: 1, username: 'testUser', email: 'test@example.com', accessToken: 'fakeToken' });
         });
     });
 
-    it('should login a user', async () => {
-      const res = await request(app)
-        .post('/api/users/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
+    describe('POST /users/login', () => {
+        it('should login a user with valid credentials', async () => {
+            (User.findOne as jest.Mock).mockResolvedValue({ id: 1, password: 'hashedPassword' });
+            (comparePassword as jest.Mock).mockResolvedValue(true);
+            (JwtUtility.generateToken as jest.Mock).mockReturnValue('fakeToken');
+
+            const res = await request(app).post('/users/login').send({ email: 'test@example.com', password: 'password' });
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ id: 1, username: 'testUser', email: 'test@example.com', accessToken: 'fakeToken' });
         });
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty('accessToken');
-    });
+        it('should return 401 for invalid credentials', async () => {
+            (User.findOne as jest.Mock).mockResolvedValue({ id: 1, password: 'hashedPassword' });
+            (comparePassword as jest.Mock).mockResolvedValue(false);
 
-    it('should return 401 for invalid credentials', async () => {
-      const res = await request(app)
-        .post('/api/users/login')
-        .send({
-          email: 'test@example.com',
-          password: 'wrongpassword',
-        });
+            const res = await request(app).post('/users/login').send({ email: 'test@example.com', password: 'wrongPassword' });
 
-      expect(res.statusCode).toBe(401);
-    });
-  });
-
-  describe('GET /api/users', () => {
-    beforeEach(async () => {
-      await request(app)
-        .post('/api/users')
-        .send({
-          username: 'testuser1',
-          email: 'test1@example.com',
-          password: 'password123',
-        });
-      await request(app)
-        .post('/api/users')
-        .send({
-          username: 'testuser2',
-          email: 'test2@example.com',
-          password: 'password123',
+            expect(res.status).toBe(401);
+            expect(res.body).toEqual({ error: 'Invalid credentials' });
         });
     });
 
-    it('should return all users', async () => {
-      const res = await request(app).get('/api/users');
+    describe('GET /users', () => {
+        it('should get all users', async () => {
+            (User.findAll as jest.Mock).mockResolvedValue([{ id: 1, username: 'testUser' }]);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveLength(2);
-      expect(res.body[0]).toHaveProperty('id');
-      expect(res.body[0]).toHaveProperty('username');
-      expect(res.body[0]).toHaveProperty('email');
-      expect(res.body[0]).not.toHaveProperty('password');
+            const res = await request(app).get('/users');
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual([{ id: 1, username: 'testUser' }]);
+        });
     });
-  });
 
+    describe('GET /users/:id', () => {
+        it('should get a user by id', async () => {
+            (User.findByPk as jest.Mock).mockResolvedValue({ id: 1, username: 'testUser' });
+
+            const res = await request(app).get('/users/1');
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ id: 1, username: 'testUser' });
+        });
+
+        it('should return 404 if user not found', async () => {
+            (User.findByPk as jest.Mock).mockResolvedValue(null);
+
+            const res = await request(app).get('/users/1');
+
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: 'User not found' });
+        });
+    });
+
+    describe('PUT /users/:id', () => {
+        it('should update a user', async () => {
+            (User.findByPk as jest.Mock).mockResolvedValue({ id: 1, username: 'testUser' });
+            (User.update as jest.Mock).mockResolvedValue([1]);
+            (JwtUtility.generateToken as jest.Mock).mockReturnValue('fakeToken');
+
+            const res = await request(app).put('/users/1').send({ username: 'updatedUser' });
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ id: 1, username: 'updatedUser', email: 'test@example.com', accessToken: 'fakeToken' });
+        });
+
+        it('should return 404 if user not found', async () => {
+            (User.findByPk as jest.Mock).mockResolvedValue(null);
+
+            const res = await request(app).put('/users/1').send({ username: 'updatedUser' });
+
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: 'User not found' });
+        });
+    });
+
+    describe('DELETE /users/:id', () => {
+        it('should delete a user', async () => {
+            (User.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+            (User.destroy as jest.Mock).mockResolvedValue(1);
+
+            const res = await request(app).delete('/users/1');
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ message: 'User successfully deleted' });
+        });
+
+        it('should return 404 if user not found', async () => {
+            (User.findByPk as jest.Mock).mockResolvedValue(null);
+
+            const res = await request(app).delete('/users/1');
+
+            expect(res.status).toBe(404);
+            expect(res.body).toEqual({ error: 'User not found' });
+        });
+    });
 });

@@ -2,8 +2,8 @@ import { Sequelize } from 'sequelize';
 import sequelize from '../config/database';
 
 const models = {
-  Blog: require('./Blog').default,
-  User: require('./User').default
+  Blog: require('./blog').default,
+  User: require('./user').default
   // Add other models here
 };
 
