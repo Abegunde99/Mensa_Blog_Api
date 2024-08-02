@@ -1,61 +1,80 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import UserRepository from '../repository/user';
+import asyncHandler from '../middlewares/async';
+import ErrorResponse from '../utils/errorResponse';
+import { userSignupValidator, userLoginValidator, getUserByEmailOrUsernameValidator, updateUserValidator, } from '../validators/userValidators';
+import { hashPassword } from '../utils/index';
 
 const userRepository = new UserRepository();
 
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const user = await userRepository.create(req.body);
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to create user' });
+export const createUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const { error } = userSignupValidator(req.body);
+  if (error) {
+    return next(new ErrorResponse(error.details[0].message, 400))
   }
-};
+  req.body.password = await hashPassword(req.body.password);
+  const user = await userRepository.create(req.body);
+  res.status(201).json({success: true, message: "User created successfully", data: user});
+});
 
-export const getAllUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await userRepository.findAll();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
+
+export const loginUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const { error } = userLoginValidator(req.body);
+  if (error) {
+    return next(new ErrorResponse(error.details[0].message, 400))
   }
-};
+  const user = await userRepository.login(req.body);
+  res.status(201).json({success: true, message: "User logged in successfully", data: user});
+})
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getAllUsers = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const users = await userRepository.findAll();
+  res.status(200).json({ success: true, users });
+});
+
+
+export const findByEmailOrUsername = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const { error } = getUserByEmailOrUsernameValidator(req.body);
+  if (error) {
+    return next(new ErrorResponse(error.details[0].message, 400));
+  }
+
+  const { email, username } = req.body;
+
+  if (!email && !username) {
+    return next(new ErrorResponse("You need to enter either email or username", 400));
+  }
+  
+  if (email && username) {
+    return next(new ErrorResponse("You can't enter both email and username at the same time", 400));
+  }
+
   try {
-    const user = await userRepository.findById(Number(req.params.id));
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ error: 'User not found' });
+    const user = await userRepository.findByEmailOrUsername(email || username);
+    
+    if (!user) {
+      return next(new ErrorResponse("User not found", 404));
     }
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user' });
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    return next(new ErrorResponse("Server error", 500));
   }
-};
+})
 
-export const updateUser = async (req: Request, res: Response) => {
-  try {
-    const [updatedRows, [updatedUser]] = await userRepository.update(Number(req.params.id), req.body);
-    if (updatedRows > 0) {
-      res.json(updatedUser);
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to update user' });
-  }
-};
+export const getUserById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  if(!id) return next(new ErrorResponse('Please enter an ID', 400))
+  const user = await userRepository.findById(Number(req.params.id));
+  if (!user) return next(new ErrorResponse('User not found', 404));
+  res.status(200).json({ success: true, user });
+});
 
-export const deleteUser = async (req: Request, res: Response) => {
-  try {
-    const deletedCount = await userRepository.delete(Number(req.params.id));
-    if (deletedCount > 0) {
-      res.status(204).send();
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete user' });
-  }
-};
+export const updateUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const updatedUser = await userRepository.update(Number(req.params.id), req.body);
+  res.status(200).json({ success: true, message: "User updated successfully", updatedUser });
+});
+
+export const deleteUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const {message} = await userRepository.delete(Number(req.params.id));
+  res.status(200).json({success: true, message});
+});

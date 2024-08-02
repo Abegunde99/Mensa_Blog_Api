@@ -12,16 +12,18 @@ const userSignupValidator = (userData: any) => {
 
 const userLoginValidator = (userData: any) => {
   const schema = Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().email(),
+    username: Joi.string(),
     password: Joi.string().required(),
   });
   return schema.validate(userData);
 };
 
-const getUserByEmailValidator = (userData: any) => {
+const getUserByEmailOrUsernameValidator = (userData: any) => {
   const schema = Joi.object({
-    email: Joi.string().email().required(),
-  });
+    email: Joi.string().email(),
+    username: Joi.string()
+  })
   return schema.validate(userData);
 };
 
@@ -34,26 +36,10 @@ const updateUserValidator = (userData: any) => {
   return schema.validate(userData);
 };
 
-const forgotPasswordValidator = (userData: any) => {
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
-  });
-  return schema.validate(userData);
-};
-
-const resetPasswordValidator = (userData: any) => {
-  const schema = Joi.object({
-    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-    confirmPassword: Joi.ref('password'),
-  }).with('password', 'confirmPassword');
-  return schema.validate(userData);
-};
 
 export {
   userSignupValidator,
   userLoginValidator,
-  getUserByEmailValidator,
-  updateUserValidator,
-  forgotPasswordValidator,
-  resetPasswordValidator
+  getUserByEmailOrUsernameValidator,
+  updateUserValidator
 };

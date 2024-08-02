@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import ErrorResponse from '../utils/errorResponse';
-
-interface ExtendedError extends Error {
-  statusCode?: number;
-  errors?: any;
-}
+import { ExtendedError } from '../interface';
 
 function errorHandler(
   err: ErrorResponse | Error,
@@ -12,14 +8,13 @@ function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.error(err);
 
   let error: ExtendedError = err;
 
   if (!(err instanceof ErrorResponse)) {
     error = new ErrorResponse(err.message || 'Server Error', 500);
   }
-
+  console.log(error.statusCode)
   res.status(error.statusCode || 500).json({
     success: false,
     error: {

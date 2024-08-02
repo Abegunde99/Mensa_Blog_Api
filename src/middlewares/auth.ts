@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { CustomRequest, Data, UserJWT } from "../interface";
+import { CustomRequest, UserJWT } from "../interface";
 import JwtUtility from "../utils/jwt";
 import ErrorResponse  from "../utils/errorResponse";
 
