@@ -1,30 +1,16 @@
 import { Request, Response } from 'express';
 
-// General Types
-export type Data<T = unknown> = {
-    [key: string]: T;
-};
-
-// Response Interface
-export interface IResponseData<T = unknown> {
-    status: number;
-    message: string;
-    data: Data<T>;
-}
-
 // User Interfaces
 export interface IUser {
-    id: number;
-    firstName: string;
-    lastName: string;
+    id?: number;
+    username: string;
     email: string;
     password: string;
 }
 
 export interface IData {
     id: number;
-    firstName: string;
-    lastName: string;
+    username: string;
     email: string;
     password: string;
     createdAt: Date;
@@ -33,20 +19,27 @@ export interface IData {
 
 export interface IUserData {
     id: number;
-    firstName: string;
-    lastName: string;
+    username: string;
     email: string;
     accessToken: string;
-    accountNumber: number;
 }
 
-export interface IUserDataWHToken {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
+//BLOG interface
+export interface IBlog {
+    id?: number;
+    title: string;
+    content: string;
+    authorId: number
 }
 
+export interface IBlogData {
+    id?: number;
+    title: string;
+    content: string;
+    authorId: number
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 // JWT Interface
 export interface UserJWT {

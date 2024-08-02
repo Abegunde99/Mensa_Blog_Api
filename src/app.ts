@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {Request, Response, NextFunction} from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -30,6 +30,16 @@ app.use(xssClean())
 //prevent params pollution
 app.use(hpp())
 
+
+//routes
+import blogRouter from './routes/blog';
+import userRouter from './routes/user';
+
+app.get('/', (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).json({success: true, message: 'Welcome to my blog api' })
+})
+app.use('/api/v1', blogRouter);
+app.use('/api/v1', userRouter);
 
 //errorHandler
 import errorHandler from "./middlewares/errorHandler";

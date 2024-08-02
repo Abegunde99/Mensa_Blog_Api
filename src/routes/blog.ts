@@ -3,11 +3,11 @@ import * as blogController from '../controllers/blog';
 
 const router = express.Router();
 
-router.post('/', blogController.createBlog);
-router.get('/', blogController.getAllBlogs);
-router.get('/:id', blogController.getBlogById);
-router.put('/:id', blogController.updateBlog);
-router.delete('/:id', blogController.deleteBlog);
-router.get('/author/:authorId', blogController.getBlogsByAuthor);
+router.post('/blog', blogController.createBlog);
+router.get('/blogs', blogController.getAllBlogs);
+router.get('/blog/:id', blogController.getBlogById);
+router.put('/blog/:id', blogController.updateBlog);
+router.delete('/blog/:id', blogController.deleteBlog);
+router.get('/blog/author/:authorId', blogController.getBlogsByAuthor);
 
 export default router;

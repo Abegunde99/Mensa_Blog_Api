@@ -1,4 +1,5 @@
 import Blog from '../models/Blog';
+import { IBlog, IBlogData } from '../interface';
 
 export default class BlogRepository {
   async create(blogData: Partial<Blog>): Promise<Blog> {

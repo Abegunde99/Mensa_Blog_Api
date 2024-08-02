@@ -1,5 +1,5 @@
 import { sign, verify } from "jsonwebtoken";
-import environ from "../config/config"
+import environ from "../config/_config"
 class JwtUtility {
     static generateToken(id: number) {
       return sign({ _id: id }, environ.JWT_SECRET as string, {
