@@ -21,9 +21,6 @@ This project is a simple blogging platform built with Node.js and TypeScript. Th
 - [Authentication](#authentication)
 - [Testing](#testing)
 - [Documentation](#documentation)
-- [Code Quality](#code-quality)
-- [Submission](#submission)
-- [Submission Date](#submission-date)
 
 ## Features
 
