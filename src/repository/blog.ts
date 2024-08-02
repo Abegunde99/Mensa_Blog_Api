@@ -1,7 +1,6 @@
 import Blog from '../models/Blog';
 import User from '../models/User';
 import ErrorResponse from '../utils/errorResponse';
-import { IBlog, IBlogData } from '../interface';
 
 export default class BlogRepository {
   async create(blogData: Partial<Blog>): Promise<Blog> {
@@ -30,16 +29,26 @@ export default class BlogRepository {
     }
   }
 
-  async update(id: number, authorId: number, blogData: Partial<Blog>): Promise<[number, Blog[]]> {
+  async update(id: number, authorId: number, blogData: Partial<Blog>): Promise<Blog | null> {
     try {
       const blog = await Blog.findByPk(id);
-      if(authorId != Number(blog?.authorId)) throw new ErrorResponse("You are not authorized to update this blog", 400)
+      
       if (!blog) throw new ErrorResponse("Blog not found", 404);
-      return await Blog.update(blogData, { where: { id }, returning: true });
-    }catch (error: any){
-      throw new ErrorResponse(error.message, 500)
+      
+      if (authorId !== blog.authorId) throw new ErrorResponse("You are not authorized to update this blog", 400);
+
+      const [affectedRows] = await Blog.update(blogData, { where: { id }, returning: true });
+      
+      if (affectedRows === 0) throw new ErrorResponse("Please enter the right fields to update", 400);
+      
+      const updatedBlog = await Blog.findByPk(id);
+      
+      return updatedBlog;
+    } catch (error: any) {
+        throw new ErrorResponse(error.message, 500);
     }
-  }
+}
+
 
   async delete(id: number, authorId: number): Promise<{message: string}> {
     try {

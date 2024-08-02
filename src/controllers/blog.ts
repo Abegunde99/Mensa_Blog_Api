@@ -30,14 +30,15 @@ export const getBlogById = asyncHandler(async (req: Request, res: Response, next
 });
 
 export const updateBlog = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+  const { error } = updateBlogValidator(req.body);
+  if (error) {
+    return next(new ErrorResponse(error.details[0].message, 400))
+  }
   if (!req.user) return next(new ErrorResponse('You are not authorized to access this route', 400));
   const authorId = req.user._id
-  const [updatedRows, [updatedBlog]] = await blogRepository.update(Number(req.params.id), authorId ,req.body);
-  if (updatedRows > 0) {
-    res.json(updatedBlog);
-  } else {
-    res.status(404).json({ error: 'Blog not found' });
-  }
+  console.log({authorId})
+  const blog = await blogRepository.update(Number(req.params.id), authorId ,req.body);
+  res.status(200).json({ success: true, blog });
 });
 
 export const deleteBlog = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {

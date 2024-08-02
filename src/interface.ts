@@ -1,45 +1,10 @@
 import { Request, Response } from 'express';
 
-// User Interfaces
-// export interface IUser {
-//     id?: number;
-//     username: string;
-//     email: string;
-//     password: string;
-// }
-
-export interface IUser {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
-    createdAt: Date;
-    updatedAt: Date;
-    accessToken?: string;
-}
-
 export interface IUserData {
     id: number;
     username: string;
     email: string;
     accessToken?: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-//BLOG interface
-export interface IBlog {
-    id?: number;
-    title: string;
-    content: string;
-    authorId: number
-}
-
-export interface IBlogData {
-    id?: number;
-    title: string;
-    content: string;
-    authorId: number
     createdAt: Date;
     updatedAt: Date;
 }
