@@ -1,5 +1,5 @@
-import Blog from '../models/Blog';
-import User from '../models/User';
+import Blog from '../models/blog';
+import User from '../models/user';
 import ErrorResponse from '../utils/errorResponse';
 
 export default class BlogRepository {
